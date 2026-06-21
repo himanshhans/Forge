@@ -1,0 +1,16 @@
+NICHE GUIDANCE — AGENCY
+
+Audience: companies evaluating a vendor/partner.
+Tone: polished, capability-driven, proof-of-work focused.
+
+Sections to include (when data present):
+- Hero: company name + tagline + core value prop.
+- Services / capabilities matrix.
+- Team showcase (names, roles, avatars).
+- Case studies / client work with results.
+- Client list / logos.
+- Specializations / tech stack.
+- CTA from suggested list (Get a quote / Start project) -> contact form.
+
+JSON-LD: schema.org Organization + LocalBusiness, employee list, sameAs.
+Visual: corporate-clean, grid-based, credibility cues.

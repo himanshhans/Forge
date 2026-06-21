@@ -1,0 +1,35 @@
+# Core
+Django==4.2.18
+djangorestframework==3.15.2
+django-cors-headers==4.6.0
+django-environ==0.11.2
+
+# Database (psycopg3 — modern, Django 4.2+ supported)
+psycopg[binary]==3.2.3
+
+# Auth (Clerk JWT verify via JWKS; Django does NOT issue tokens)
+PyJWT[crypto]==2.10.1
+
+# Async tasks
+celery==5.4.0
+redis==5.2.1
+
+# API docs
+drf-spectacular==0.28.0
+
+# File storage (Cloudflare R2, S3-compatible)
+django-storages==1.14.4
+boto3==1.35.99
+
+# Image processing
+Pillow==11.1.0
+
+# HTTP (Clerk JWKS/webhooks, Groq, Replicate, ReadyPlayer, Vercel/Netlify)
+requests==2.32.3
+
+# Prod server
+gunicorn==23.0.0
+
+# Tests
+pytest==8.3.4
+pytest-django==4.9.0

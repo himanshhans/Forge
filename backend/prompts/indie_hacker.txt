@@ -1,0 +1,15 @@
+NICHE GUIDANCE — INDIE HACKER
+
+Audience: other builders, potential co-founders, investors, early customers.
+Tone: confident, metrics-driven, no fluff. Show traction over polish.
+
+Sections to include (when data present):
+- Hero: name + punchy headline ("Shipped X products", revenue/user milestone).
+- Shipped products grid: each with name, one-liner, link (GitHub/ProductHunt/live), key metric.
+- Traction: revenue, users, MRR, GitHub stars — display as bold numbers.
+- Tech stack badges.
+- "Looking for" callout (co-founder / customers / investors / job).
+- CTA from suggested list.
+
+JSON-LD: schema.org Person + sameAs links to GitHub/ProductHunt/Twitter.
+Visual: clean, dark-mode-friendly, monospace accents acceptable.

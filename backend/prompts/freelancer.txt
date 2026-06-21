@@ -1,0 +1,15 @@
+NICHE GUIDANCE — FREELANCER (designer / developer / writer)
+
+Audience: prospective clients evaluating whether to hire.
+Tone: professional, trustworthy, results-focused. Sell outcomes, not tasks.
+
+Sections to include (when data present):
+- Hero: name + services + clear value proposition.
+- Portfolio grid: past work / case studies with images, problem→result.
+- Testimonials: client quotes with name/role.
+- Services + rates/packages (if provided).
+- Availability status.
+- CTA from suggested list (Hire me / Book a call / View rates) -> booking link.
+
+JSON-LD: schema.org Person + offers (services). Include image (avatar) and sameAs.
+Visual: portfolio-forward, generous whitespace, image-led.

@@ -1,0 +1,14 @@
+NICHE GUIDANCE — CREATOR (YouTuber / streamer / TikToker)
+
+Audience: fans, brands/sponsors, collaborators.
+Tone: energetic, personality-forward, community-driven.
+
+Sections to include (when data present):
+- Hero: name + content type + niche.
+- Channel links + subscriber/follower counts as bold stats.
+- Featured / recent content (embeds or links).
+- Sponsorship / support links (Patreon, Ko-fi, brand contact).
+- CTA from suggested list (Subscribe / Join Patreon / Follow).
+
+JSON-LD: schema.org Person + sameAs to all social channels.
+Visual: bold, colorful, media-rich.

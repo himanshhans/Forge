@@ -1,0 +1,14 @@
+NICHE GUIDANCE — COACH / CONSULTANT
+
+Audience: potential clients seeking transformation/results.
+Tone: authoritative, empathetic, credibility-first.
+
+Sections to include (when data present):
+- Hero: name + expertise + outcome promise.
+- Credentials / certifications.
+- Services / packages with pricing.
+- Success stories / testimonials.
+- CTA from suggested list (Book a call / Schedule 1:1) -> Calendly link.
+
+JSON-LD: schema.org Person + makesOffer (services).
+Visual: trust-building, calm palette, clear hierarchy.
