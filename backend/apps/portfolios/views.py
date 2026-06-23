@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -99,3 +100,62 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             "published_url": portfolio.published_url,
             "avatar_url": portfolio.avatar_url,
         })
+
+    # --- Custom domain ---
+    @action(detail=True, methods=["post"], url_path="domain")
+    def add_domain(self, request, pk=None):
+        from services.domains import dns_instructions, is_valid_domain, make_token, normalize_domain
+        portfolio = self.get_object()
+        domain = normalize_domain(request.data.get("domain", ""))
+        if not is_valid_domain(domain):
+            return Response({"detail": "Enter a valid domain (e.g. me.example.com)."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if Portfolio.objects.filter(custom_domain=domain).exclude(pk=portfolio.pk).exists():
+            return Response({"detail": "That domain is already in use."},
+                            status=status.HTTP_409_CONFLICT)
+        portfolio.custom_domain = domain
+        portfolio.custom_domain_token = make_token()
+        portfolio.custom_domain_status = "pending"
+        portfolio.has_custom_domain = False
+        portfolio.save(update_fields=[
+            "custom_domain", "custom_domain_token", "custom_domain_status", "has_custom_domain",
+        ])
+        return Response({
+            "domain": domain,
+            "status": "pending",
+            "dns": dns_instructions(domain, portfolio.custom_domain_token),
+        })
+
+    @action(detail=True, methods=["post"], url_path="domain/verify")
+    def verify_domain(self, request, pk=None):
+        from services.domains import provision_ssl, verify_txt
+        portfolio = self.get_object()
+        if not portfolio.custom_domain:
+            return Response({"detail": "No domain to verify."}, status=status.HTTP_400_BAD_REQUEST)
+        if not verify_txt(portfolio.custom_domain, portfolio.custom_domain_token):
+            portfolio.custom_domain_status = "failed"
+            portfolio.save(update_fields=["custom_domain_status"])
+            return Response(
+                {"status": "failed", "detail": "TXT record not found yet. DNS can take a few minutes."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        provision_ssl(portfolio.custom_domain)
+        portfolio.has_custom_domain = True
+        portfolio.custom_domain_status = "verified"
+        portfolio.published_url = f"https://{portfolio.custom_domain}"
+        portfolio.save(update_fields=["has_custom_domain", "custom_domain_status", "published_url"])
+        return Response({"status": "verified", "published_url": portfolio.published_url})
+
+    @action(detail=True, methods=["delete"], url_path="domain/remove")
+    def remove_domain(self, request, pk=None):
+        portfolio = self.get_object()
+        portfolio.custom_domain = None
+        portfolio.custom_domain_token = ""
+        portfolio.custom_domain_status = ""
+        portfolio.has_custom_domain = False
+        portfolio.published_url = f"https://{portfolio.subdomain}.{settings.PORTFOLIO_WILDCARD_DOMAIN}"
+        portfolio.save(update_fields=[
+            "custom_domain", "custom_domain_token", "custom_domain_status",
+            "has_custom_domain", "published_url",
+        ])
+        return Response({"status": "removed"})

@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.portfolios",
     "apps.gallery",
+    "apps.cards",
+    "apps.assets",
 ]
 
 MIDDLEWARE = [
@@ -163,13 +165,49 @@ READYPLAYER_API_KEY = env("READYPLAYER_API_KEY", default="")
 
 # --- Publishing ---
 PORTFOLIO_WILDCARD_DOMAIN = env("PORTFOLIO_WILDCARD_DOMAIN", default="forge.app")
+# Base URL where the frontend serves pages (contact cards at /c/<slug>).
+SITE_BASE_URL = env("SITE_BASE_URL", default="http://localhost:3100")
+# Public base URL of THIS backend (used to absolutize local media URLs).
+BACKEND_BASE_URL = env("BACKEND_BASE_URL", default="http://127.0.0.1:8010")
 
-# --- Storage (Cloudflare R2, S3-compatible) ---
+# --- Custom domains ---
+# CNAME target users point their domain at (prod: your serving edge).
+CUSTOM_DOMAIN_CNAME_TARGET = env("CUSTOM_DOMAIN_CNAME_TARGET", default="cname.forge.app")
+# Cloudflare for SaaS (optional) — provisions SSL for custom hostnames in prod.
+CLOUDFLARE_API_TOKEN = env("CLOUDFLARE_API_TOKEN", default="")
+CLOUDFLARE_ZONE_ID = env("CLOUDFLARE_ZONE_ID", default="")
+
+# --- Storage: Cloudflare R2 if configured, else local filesystem (dev) ---
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
 AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="")
 AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="auto")
+# Public base URL for served R2 objects (R2 public bucket / custom domain).
+AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN", default="")
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+if AWS_STORAGE_BUCKET_NAME and AWS_ACCESS_KEY_ID:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "bucket_name": AWS_STORAGE_BUCKET_NAME,
+                "endpoint_url": AWS_S3_ENDPOINT_URL,
+                "access_key": AWS_ACCESS_KEY_ID,
+                "secret_key": AWS_SECRET_ACCESS_KEY,
+                "region_name": AWS_S3_REGION_NAME,
+                "custom_domain": AWS_S3_CUSTOM_DOMAIN or None,
+                "querystring_auth": False,
+                "file_overwrite": False,
+            },
+        },
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+# else: Django default FileSystemStorage (MEDIA_ROOT/MEDIA_URL), served in dev.
+MAX_AVATAR_BYTES = 5 * 1024 * 1024  # 5 MB upload cap
 
 # --- Free-tier limits (enforced in service layer; env-overridable for dev) ---
 FREE_PLAN_MAX_PORTFOLIOS = env.int("FREE_PLAN_MAX_PORTFOLIOS", default=1)

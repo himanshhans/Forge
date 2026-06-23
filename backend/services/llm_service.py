@@ -22,7 +22,7 @@ class LLMError(Exception):
     pass
 
 
-def _call(url, api_key, model, system, user, *, json_mode):
+def _call(url, api_key, model, system, user, *, json_mode, temperature):
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     body = {
         "model": model,
@@ -30,7 +30,7 @@ def _call(url, api_key, model, system, user, *, json_mode):
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-        "temperature": 0.7,
+        "temperature": temperature,
     }
     if json_mode:
         body["response_format"] = {"type": "json_object"}
@@ -39,7 +39,9 @@ def _call(url, api_key, model, system, user, *, json_mode):
     return resp.json()["choices"][0]["message"]["content"]
 
 
-def generate_text(system: str, user: str, *, json_mode: bool = True) -> tuple[str, str]:
+def generate_text(
+    system: str, user: str, *, json_mode: bool = True, temperature: float = 0.7
+) -> tuple[str, str]:
     """
     Return (content, provider). Try Groq, fall back to Together.
     Raises LLMError if both fail / unconfigured.
@@ -48,7 +50,7 @@ def generate_text(system: str, user: str, *, json_mode: bool = True) -> tuple[st
         try:
             content = _call(
                 GROQ_URL, settings.GROQ_API_KEY, settings.GROQ_MODEL,
-                system, user, json_mode=json_mode,
+                system, user, json_mode=json_mode, temperature=temperature,
             )
             return content, "groq"
         except requests.RequestException as e:
@@ -58,7 +60,7 @@ def generate_text(system: str, user: str, *, json_mode: bool = True) -> tuple[st
         try:
             content = _call(
                 TOGETHER_URL, settings.TOGETHER_AI_API_KEY, TOGETHER_MODEL,
-                system, user, json_mode=json_mode,
+                system, user, json_mode=json_mode, temperature=temperature,
             )
             return content, "together"
         except requests.RequestException as e:

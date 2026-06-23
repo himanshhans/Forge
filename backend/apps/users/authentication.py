@@ -51,6 +51,9 @@ class ClerkJWTAuthentication(authentication.BaseAuthentication):
                 signing_key.key,
                 algorithms=["RS256"],
                 issuer=settings.CLERK_ISSUER or None,
+                # leeway absorbs clock skew between Clerk and this server
+                # (fixes "token not yet valid (iat)").
+                leeway=60,
                 options={"verify_aud": False},  # Clerk session tokens have no fixed aud
             )
         except jwt.ExpiredSignatureError:

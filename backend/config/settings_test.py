@@ -16,3 +16,7 @@ CELERY_TASK_ALWAYS_EAGER = True
 
 # Throttling off in tests (avoid 429 noise); re-enable per-test if needed.
 REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []  # noqa: F405
+
+# Pin free-tier limits so dev .env overrides don't affect tests.
+FREE_PLAN_MAX_PORTFOLIOS = 1
+FREE_PLAN_MAX_INTRO_CARDS = 1

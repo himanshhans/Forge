@@ -66,7 +66,8 @@ class Portfolio(models.Model):
     # Serving / deployment (Model B wildcard-serve default)
     published_url = models.CharField(max_length=255, blank=True)
     has_custom_domain = models.BooleanField(default=False)
-    custom_domain_status = models.CharField(max_length=50, blank=True)  # pending_dns/verified/failed
+    custom_domain_status = models.CharField(max_length=50, blank=True)  # pending/verified/failed
+    custom_domain_token = models.CharField(max_length=64, blank=True)  # TXT challenge value
     netlify_site_id = models.CharField(max_length=255, blank=True)
 
     generation_status = models.CharField(

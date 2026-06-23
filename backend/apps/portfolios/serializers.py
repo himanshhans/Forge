@@ -16,6 +16,7 @@ class PortfolioListSerializer(serializers.ModelSerializer):
         model = Portfolio
         fields = (
             "id", "title", "niche", "slug", "subdomain", "published_url",
+            "custom_domain", "custom_domain_status", "has_custom_domain",
             "generation_status", "deployment_status", "created_at",
         )
 

@@ -1,4 +1,6 @@
 """Root URL config for Forge backend."""
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
@@ -16,9 +18,15 @@ urlpatterns = [
     # API v1
     path("api/v1/users/", include("apps.users.urls")),
     path("api/v1/", include("apps.portfolios.urls")),
+    path("api/v1/", include("apps.cards.urls")),
+    path("api/v1/", include("apps.assets.urls")),
     path("api/v1/gallery/", include("apps.gallery.urls")),
 
     # OpenAPI schema + docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
 ]
+
+# Serve uploaded media locally in dev (R2 serves its own URLs in prod).
+if not settings.AWS_STORAGE_BUCKET_NAME:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

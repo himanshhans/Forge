@@ -81,6 +81,39 @@ def test_input_cap_bio_too_long(auth_client, mock_generate):
     assert resp.status_code == 400
 
 
+def test_custom_domain_add_verify_serve(auth_client, mock_generate, monkeypatch):
+    from rest_framework.test import APIClient
+    c = auth_client(sub="ud", username="ud")
+    pid = c.post(
+        "/api/v1/portfolios/generate/",
+        {"niche": "freelancer", "questionnaire": {}, "intro_card": {"name": "D"}},
+        format="json",
+    ).data["id"]
+
+    # add domain -> pending + DNS instructions
+    add = c.post(f"/api/v1/portfolios/{pid}/domain/", {"domain": "me.example.com"}, format="json")
+    assert add.status_code == 200
+    assert add.data["status"] == "pending"
+    assert add.data["dns"]["verification"]["type"] == "TXT"
+
+    # verify fails when TXT missing
+    monkeypatch.setattr("services.domains.verify_txt", lambda d, t: False)
+    assert c.post(f"/api/v1/portfolios/{pid}/domain/verify/").status_code == 400
+
+    # verify succeeds when TXT present
+    monkeypatch.setattr("services.domains.verify_txt", lambda d, t: True)
+    ok = c.post(f"/api/v1/portfolios/{pid}/domain/verify/")
+    assert ok.status_code == 200 and ok.data["status"] == "verified"
+
+    # served publicly by domain
+    site = APIClient().get("/api/v1/sites/by-domain/?host=me.example.com")
+    assert site.status_code == 200
+    assert "generated_html" in site.data
+
+    # unknown domain -> 404
+    assert APIClient().get("/api/v1/sites/by-domain/?host=nope.com").status_code == 404
+
+
 def test_site_serves_live_only(auth_client, mock_generate):
     from rest_framework.test import APIClient
     from .models import Portfolio

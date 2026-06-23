@@ -6,24 +6,32 @@ from rest_framework.response import Response
 
 from apps.portfolios.models import Portfolio
 from apps.portfolios.niches import list_niches
-from .models import ShowcaseEntry
 from .serializers import ShowcaseEntrySerializer
 
 SORTS = {
     "newest": "-created_at",
     "oldest": "created_at",
-    "most_viewed": "-view_count",
+    "most_viewed": "-views",
 }
 
 
+def _published_qs():
+    return (
+        Portfolio.objects.filter(
+            in_showcase=True, deployment_status="live", user__is_public=True
+        )
+        .select_related("user")
+    )
+
+
 class ShowcaseListView(generics.ListAPIView):
-    """Public gallery off the showcase_index view. Filter by niche, sort, search."""
+    """Public gallery. Filter by niche, sort, search."""
     serializer_class = ShowcaseEntrySerializer
     permission_classes = [AllowAny]
     authentication_classes = []
 
     def get_queryset(self):
-        qs = ShowcaseEntry.objects.all()
+        qs = _published_qs()
         niche = self.request.query_params.get("niche")
         if niche:
             qs = qs.filter(niche=niche)
@@ -35,13 +43,9 @@ class ShowcaseListView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         resp = super().list(request, *args, **kwargs)
-        # Attach niche facets for filter UI.
         resp.data = {
             "portfolios": resp.data,
-            "niches": [
-                {"id": n["niche_id"], "name": n["display_name"]}
-                for n in list_niches()
-            ],
+            "niches": [{"id": n["niche_id"], "name": n["display_name"]} for n in list_niches()],
         }
         return resp
 
@@ -50,10 +54,11 @@ class ShowcaseDetailView(generics.RetrieveAPIView):
     serializer_class = ShowcaseEntrySerializer
     permission_classes = [AllowAny]
     authentication_classes = []
-    lookup_field = "portfolio_id"
+    lookup_field = "id"
+    lookup_url_kwarg = "portfolio_id"
 
     def get_queryset(self):
-        return ShowcaseEntry.objects.all()
+        return _published_qs()
 
 
 @api_view(["POST"])
